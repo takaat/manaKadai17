@@ -62,13 +62,13 @@ struct ContentView: View {
             }
         }
         .fullScreenCover(isPresented: $isShowAddEditView) {
-            AddOrEditItemView(isShowView: $isShowAddEditView, name: $name) { item, editname in
+            AddOrEditItemView(isShowView: $isShowAddEditView, name: $name) { item, editName in
                 switch mode {
                 case .add:
                     items.append(item)
                 case .edit:
                     guard let targetIndex = items.firstIndex(where: { $0.id == editId }) else { return }
-                    items[targetIndex].name = editname
+                    items[targetIndex].name = editName
                 }
             }
         }
