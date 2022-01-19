@@ -62,23 +62,27 @@ struct ContentView: View {
             }
         }
         .fullScreenCover(isPresented: $isShowAddEditView) {
-            AddOrEditItemView(isShowView: $isShowAddEditView, name: $name) { item, editName in
-                switch mode {
-                case .add:
-                    items.append(item)
-                case .edit:
-                    guard let targetIndex = items.firstIndex(where: { $0.id == editId }) else { return }
-                    items[targetIndex].name = editName
-                }
-            }
+            AddOrEditItemView(
+                name: $name,
+                didSave: { item, editName in
+                    isShowAddEditView = false
+                    switch mode {
+                    case .add:
+                        items.append(item)
+                    case .edit:
+                        guard let targetIndex = items.firstIndex(where: { $0.id == editId }) else { return }
+                        items[targetIndex].name = editName
+                    }
+                },
+                didCancel: { isShowAddEditView = false })
         }
     }
 }
 
 struct AddOrEditItemView: View {
-    @Binding var isShowView: Bool
     @Binding var name: String
     let didSave: (Item, String) -> Void
+    let didCancel: () -> Void
 
     var body: some View {
         NavigationView {
@@ -93,14 +97,13 @@ struct AddOrEditItemView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
                     Button("Cancel") {
-                        isShowView = false
+                        didCancel()
                     }
                 }
 
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button("Save") {
                         didSave(.init(name: name, isChecked: false), name)
-                        isShowView = false
                     }
                 }
             }
@@ -133,7 +136,7 @@ struct ContentView_Previews: PreviewProvider {
 
 struct AddOrEditItemView_Previews: PreviewProvider {
     static var previews: some View {
-        AddOrEditItemView(isShowView: .constant(true), name: .constant("みかん"), didSave: { _, _ in })
+        AddOrEditItemView(name: .constant("みかん"), didSave: { _, _ in }, didCancel: {})
     }
 }
 
